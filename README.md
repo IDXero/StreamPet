@@ -23,11 +23,15 @@ A fully self-hosted Twitch stream overlay pet. Viewers type `!ask <question>` in
 
 ## Requirements
 
-- Linux (Ubuntu/Debian recommended)
-- [Docker](https://docs.docker.com/engine/install/) + [Docker Compose](https://docs.docker.com/compose/install/)
-- [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) — required for GPU access inside containers
-- NVIDIA GPU — Turing or newer (GTX 16xx / RTX 20xx+), minimum 4 GB VRAM
-- A Twitch account for the bot
+| | Linux | Windows |
+|---|---|---|
+| OS | Ubuntu/Debian recommended | Windows 10 21H2+ or Windows 11 |
+| Docker | [Docker Engine + Compose](https://docs.docker.com/engine/install/) | [Docker Desktop](https://www.docker.com/products/docker-desktop/) (WSL2 backend) |
+| GPU support | [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) required | Driver 471.11+ on host — WSL2 handles passthrough automatically |
+| GPU | NVIDIA Turing or newer (GTX 16xx / RTX 20xx+), minimum 4 GB VRAM | Same |
+| Twitch account | Bot account (can be your main) | Same |
+
+GPU is strongly recommended but not required — Ollama runs on CPU if no compatible GPU is found.
 
 ---
 
@@ -150,6 +154,46 @@ All settings live in `.env`. Key options:
 | `COOLDOWN_SECONDS` | Per-user cooldown for `!ask` | `15` |
 | `MAX_TOKENS` | Max LLM response length | `150` |
 | `SERVER_PORT` | HTTP/WebSocket port for OBS | `8765` |
+
+---
+
+## Windows (Docker Desktop)
+
+StreamPet works on Windows via Docker Desktop with a few differences from the Linux setup.
+
+**Prerequisites:**
+- [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/) with the WSL2 backend enabled
+- Windows 11 or Windows 10 21H2+ for GPU support
+- NVIDIA driver 471.11 or newer installed on the **host** (not inside Docker)
+
+**GPU support:**
+Docker Desktop on Windows routes GPU access through WSL2. If your driver and Windows version support it, the Ollama container will use your GPU automatically — no extra configuration needed. If not, Ollama falls back to CPU (slower but functional — expect 30–60s responses instead of 2–5s).
+
+To verify GPU is being used after startup:
+```powershell
+docker exec StreamPet-ollama-1 ollama ps
+```
+The output should show your GPU name in the `PROCESSOR` column. If it shows `CPU`, check your driver version.
+
+**Getting your Twitch token on Windows:**
+Run `get_token.py` directly on your Windows machine (requires Python installed):
+```powershell
+python get_token.py
+```
+It will open your browser automatically — no SSH tunnel needed.
+
+**OBS Browser Source URL:**
+Since OBS and Docker are on the same machine, use `localhost`:
+```
+http://localhost:8765
+```
+
+**Replacing pet images on Windows:**
+```powershell
+docker cp pet_idle.png StreamPet-streampet-1:/app/static/pet_idle.png
+docker cp pet_talk.png StreamPet-streampet-1:/app/static/pet_talk.png
+docker compose restart streampet
+```
 
 ---
 
