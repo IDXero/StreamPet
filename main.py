@@ -5,6 +5,7 @@ Runs the FastAPI web server and Twitch bot concurrently.
 import asyncio
 import uvicorn
 from config import cfg
+import memory
 from server import app
 
 
@@ -20,10 +21,20 @@ async def run_server():
 
 
 async def run_bot():
-    # Import here so config is fully loaded first
     from bot import StreamPetBot
-    bot = StreamPetBot()
-    await bot.start()
+    import twitchio.errors
+    import token_manager
+
+    try:
+        bot = StreamPetBot()
+        await bot.start()
+    except twitchio.errors.AuthenticationError:
+        print("[Bot] Access token expired — attempting automatic refresh...")
+        if token_manager.refresh_access_token():
+            print("[Bot] Token refreshed — restarting...")
+        else:
+            print("[Bot] Auto-refresh failed. Run:  python3 get_token.py")
+        raise SystemExit(1)
 
 
 _PLACEHOLDERS = {"", "your_bot_username", "your_channel_name", "your_token_here"}
@@ -34,6 +45,8 @@ def _is_placeholder(value: str) -> bool:
 
 
 async def main():
+    memory.init_db()
+
     if _is_placeholder(cfg.TWITCH_TOKEN) or cfg.TWITCH_TOKEN == "oauth:your_token_here":
         print("[✗] TWITCH_TOKEN is not set in .env.")
         print("    Run:  python3 get_token.py")

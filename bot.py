@@ -4,6 +4,7 @@ from twitchio.ext import commands
 
 from config import cfg
 import llm
+import memory
 import tts
 from server import broadcast_event
 
@@ -47,8 +48,9 @@ class StreamPetBot(commands.Bot):
         await broadcast_event({"type": "thinking", "username": username, "question": question})
         await ctx.send(f"@{username} Let me think... 🐾")
 
-        # Ask the LLM
-        answer = await llm.ask(question, username)
+        # Ask the LLM with viewer history as context
+        viewer_context = memory.get_viewer_context(username)
+        answer = await llm.ask(question, username, viewer_context)
         if not answer:
             await broadcast_event({"type": "error", "username": username})
             await ctx.send(f"@{username} My brain is offline right now! Try again later.")
@@ -56,6 +58,9 @@ class StreamPetBot(commands.Bot):
 
         # Generate TTS audio
         audio_url = await tts.synthesize(answer)
+
+        # Save interaction to memory
+        memory.save_interaction(username, question, answer)
 
         # Broadcast to browser source
         await broadcast_event({

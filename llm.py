@@ -9,12 +9,16 @@ _SYSTEM_PROMPT = (
 )
 
 
-async def ask(question: str, username: str) -> str | None:
+async def ask(question: str, username: str, viewer_context: str = "") -> str | None:
     """Send a question to Ollama and return the response text."""
+    system = _SYSTEM_PROMPT
+    if viewer_context:
+        system += f"\n\n[Viewer context — use naturally, do not recite verbatim]\n{viewer_context}"
+
     payload = {
         "model": cfg.OLLAMA_MODEL,
         "prompt": f"{username} asks: {question}",
-        "system": _SYSTEM_PROMPT,
+        "system": system,
         "stream": False,
         "options": {
             "num_predict": cfg.MAX_TOKENS,

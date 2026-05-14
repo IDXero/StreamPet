@@ -102,7 +102,8 @@ def build_auth_url(client_id: str) -> str:
     return f"https://id.twitch.tv/oauth2/authorize?{params}"
 
 
-def exchange_code(client_id: str, client_secret: str, code: str) -> str:
+def exchange_code(client_id: str, client_secret: str, code: str) -> tuple[str, str]:
+    """Returns (access_token, refresh_token)."""
     payload = urllib.parse.urlencode({
         "client_id":     client_id,
         "client_secret": client_secret,
@@ -119,7 +120,7 @@ def exchange_code(client_id: str, client_secret: str, code: str) -> str:
         data = json.loads(resp.read())
     if "access_token" not in data:
         raise RuntimeError(f"Token exchange failed: {data}")
-    return data["access_token"]
+    return data["access_token"], data.get("refresh_token", "")
 
 
 # ── Local callback server ──────────────────────────────────────────────────────
@@ -328,7 +329,7 @@ def main():
         print("  1. Go to https://dev.twitch.tv/console (log in as your BOT account)")
         print("  2. Click  Register Your Application")
         print("  3. Fill in:")
-        print("       Name              : StreamPet  (or any name you like)")
+        print("       Name              : BSSG-Streampet")
         print(f"      OAuth Redirect URL : {REDIRECT_URI}")
         print("       Category          : Chat Bot")
         print("  4. Click Create → Manage")
@@ -342,19 +343,23 @@ def main():
 
     try:
         if headless:
-            token = headless_flow(client_id, client_secret)
+            access_token, refresh_token = headless_flow(client_id, client_secret)
         else:
-            token = gui_flow(client_id, client_secret)
+            access_token, refresh_token = gui_flow(client_id, client_secret)
     except RuntimeError as e:
         print(f"\n[✗] {e}")
         sys.exit(1)
 
-    oauth_token = f"oauth:{token}"
+    oauth_token = f"oauth:{access_token}"
     write_env_key("TWITCH_TOKEN", oauth_token)
+    if refresh_token:
+        write_env_key("TWITCH_REFRESH_TOKEN", refresh_token)
 
     print()
     print("  [✓] Token saved to .env")
     print(f"      {oauth_token[:24]}{'*' * max(0, len(oauth_token) - 24)}")
+    if refresh_token:
+        print("  [✓] Refresh token saved to .env (auto-renewal enabled)")
     print()
     print("  Done. Run:  ./start.sh")
     print("═══════════════════════════════════════════════════════")
