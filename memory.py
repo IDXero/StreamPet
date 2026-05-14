@@ -1,8 +1,11 @@
+import os
 import sqlite3
 import time
 from pathlib import Path
 
-DB_PATH     = Path(__file__).parent / "memory.db"
+_data_dir = Path(os.getenv("DATA_DIR", Path(__file__).parent))
+_data_dir.mkdir(parents=True, exist_ok=True)
+DB_PATH   = _data_dir / "memory.db"
 REGULAR_AT  = 10   # interactions before a viewer is considered a regular
 HISTORY_LEN = 5    # recent Q&As passed to the LLM as context
 MAX_STORED  = 50   # max interactions kept per viewer (oldest pruned)

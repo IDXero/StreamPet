@@ -17,6 +17,10 @@ static/audio/
 static/pet_idle.png
 static/pet_talk.png
 
+# Docker runtime data
+data/
+memory.db
+
 # Editor / OS junk
 *.swp
 *.swo

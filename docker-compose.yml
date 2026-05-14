@@ -1,0 +1,43 @@
+services:
+
+  # ── Ollama — local LLM inference ─────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama_models:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # ── StreamPet — bot, TTS, and browser source ──────────────────────────────────
+  streampet:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    ports:
+      - "8765:8765"
+    env_file: .env
+    environment:
+      # Override localhost Ollama URL to reach the ollama container
+      - OLLAMA_URL=http://ollama:11434
+      # Store memory.db in the persistent data volume
+      - DATA_DIR=/app/data
+    volumes:
+      # Persistent viewer memory database
+      - streampet_data:/app/data
+      # Runtime audio files (auto-cleaned by StreamPet)
+      - streampet_audio:/app/static/audio
+      # Pet artwork — replace these with your own PNGs.
+      # Copy files in with: docker cp pet_idle.png streampet-streampet-1:/app/static/pet_idle.png
+      # Then: docker compose restart streampet
+
+volumes:
+  ollama_models:
+  streampet_data:
+  streampet_audio:

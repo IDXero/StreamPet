@@ -1,0 +1,23 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Secrets
+.env
+
+# Downloaded at build time — don't bloat the build context
+piper/
+
+# Runtime output
+static/audio/
+memory.db
+data/
+
+# Dev / CI
+.git/
+.claude/
+*.swp
+*.swo
+.DS_Store
