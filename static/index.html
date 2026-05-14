@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>StreamPet</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="scene">
+
+    <!-- Speech bubble — appears above the pet -->
+    <div id="bubble" class="hidden">
+      <div id="bubble-username"></div>
+      <div id="bubble-text"></div>
+    </div>
+
+    <!-- Pet image — swap pet_idle.png / pet_talk.png for your own art -->
+    <div id="pet-wrap">
+      <img id="pet-img"
+           src="/static/pet_idle.png"
+           alt="StreamPet"
+           onerror="this.src='/static/pet_placeholder.svg'">
+    </div>
+
+  </div>
+
+  <script src="/static/pet.js"></script>
+</body>
+</html>

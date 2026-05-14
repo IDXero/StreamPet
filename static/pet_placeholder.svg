@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <rect width="300" height="300" rx="20" fill="#fce7f3" stroke="#f472b6" stroke-width="3"/>
+  <text x="150" y="130" text-anchor="middle" font-family="sans-serif" font-size="60">🐱</text>
+  <text x="150" y="185" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#db2777">Drop your PNG here:</text>
+  <text x="150" y="205" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#9d174d">static/pet_idle.png</text>
+  <text x="150" y="222" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#9d174d">static/pet_talk.png</text>
+</svg>

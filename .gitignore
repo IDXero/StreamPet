@@ -1,0 +1,24 @@
+# Secrets — never commit
+.env
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Piper TTS binaries and voice models (downloaded by install.sh)
+piper/
+
+# Runtime audio output
+static/audio/
+
+# Your pet artwork (drop your own PNGs here — see README)
+static/pet_idle.png
+static/pet_talk.png
+
+# Editor / OS junk
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
